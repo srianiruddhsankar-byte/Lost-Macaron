@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Houdin Mystery – Lost Macaron Recipe</title>
+  <link rel="stylesheet" href="style.css?v=2027">
+</head>
+<body>
+
+<!-- Wizard Progress Indicator -->
+<div id="wizardProgress" class="wizard-container">
+  <div class="wizard-header">
+    <div class="wizard-step-info">
+      <span class="wizard-step-counter">Step <span id="currentStep">1</span> of <span id="totalSteps">8</span></span>
+      <span class="wizard-step-title" id="stepTitle">Begin Your Adventure</span>
+    </div>
+    <div class="wizard-progress-bar">
+      <div class="wizard-progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+  <div class="wizard-steps">
+    <div class="wizard-step completed" data-step="1">
+      <div class="wizard-step-circle">1</div>
+      <div class="wizard-step-label">Intro</div>
+    </div>
+    <div class="wizard-step" data-step="2">
+      <div class="wizard-step-circle">2</div>
+      <div class="wizard-step-label">Louvre</div>
+    </div>
+    <div class="wizard-step" data-step="3">
+      <div class="wizard-step-circle">3</div>
+      <div class="wizard-step-label">Café</div>
+    </div>
+    <div class="wizard-step" data-step="4">
+      <div class="wizard-step-circle">4</div>
+      <div class="wizard-step-label">Boutique</div>
+    </div>
+    <div class="wizard-step" data-step="5">
+      <div class="wizard-step-circle">5</div>
+      <div class="wizard-step-label">Bookstore</div>
+    </div>
+    <div class="wizard-step" data-step="6">
+      <div class="wizard-step-circle">6</div>
+      <div class="wizard-step-label">Bakery</div>
+    </div>
+    <div class="wizard-step" data-step="7">
+      <div class="wizard-step-circle">7</div>
+      <div class="wizard-step-label">Final</div>
+    </div>
+    <div class="wizard-step" data-step="8">
+      <div class="wizard-step-circle">8</div>
+      <div class="wizard-step-label">Victory</div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 0 – Title & Story -->
+<div class="slide active" id="slide0" style="background-image: url('https://cdn.pixabay.com/photo/2016/03/09/09/22/paris-1245856_1280.jpg');">
+  <h1>The Lost Macaron Recipe!🇫🇷</h1>
+  <p>🎩 In a dimly lit Parisian basement, Houdin is practicing his sleight of hand tricks ✨. Shadows dance on the walls, and the scent of candle wax fills the air 🕯️. Suddenly, a frantic messenger bursts in 📜💨 — the secret macaron recipe has been stolen! Only your unique skills of observation, logic, and magic can recover it 🗝️. Explore famous Parisian spots, collect hidden clues 🕵️‍♂️, and uncover the lost recipe before it’s gone forever! 🍬🗼</p>
+  <p>Some suspicious activity was seen in the Louvre Museum 🧐, start by exploring it!</p>
+  <button onclick="goToSlide('slideMuseum')">To the Louvre Museum!</button>
+</div>
+
+<!-- Slide 1 – Louvre Museum -->
+<div class="slide" id="slideMuseum" style="background-image: url('https://cdn.pixabay.com/photo/2017/03/07/17/56/louvre-2128077_1280.jpg');">
+  <h1>Location📍: Louvre Museum</h1>
+  <p>A coded message has been hidden within one of the Louvre’s most famous paintings 🎨. Houdin recalls a trick he once performed — hiding secrets in plain sight 🎩✨. Now, strange illusions have been reported throughout the museum…... paintings seem different, almost alive 👀. The thief must have used the same magic to conceal the clue. Look carefully — not everything is as it seems 🕵️‍♂️.</p>
+  <p>Dare to proceed… Answer these questions and prove your wit 🧩✨. Only then will the next hidden clue reveal itself 🗝️.</p>
+  <div id="museumTask"></div>
+  <button onclick="nextMuseumTask()">Next Task</button>
+  <div class="clues" id="cluesMuseum">Clues collected: 0/5</div>
+</div>
+
+<!-- NEW Slide – Transition (Clue Reveal) -->
+<div class="slide" id="slideTransition" style="background-image: url('https://cdn.pixabay.com/photo/2016/11/29/03/53/flower-1869716_1280.jpg');">
+  <h1>A Hidden Word Appears… 🌸</h1>
+  <p id="transitionText">
+    As you decode the hidden message within the Louvre’s painting 🎨, a single word reveals itself… "Flore".
+
+“Flore…” Houdin murmurs 🎩✨ — the word means Flower 🌸. But this is no ordinary hint.
+
+A memory strikes him — Café de Flore, the legendary Parisian café ☕. The thief didn’t just leave a word… they left a destination.
+
+Following the clue, you arrive at the café. The atmosphere feels strange… almost enchanted ✨.
+  </p>
+  <button onclick="goToSlide('slideCafe')">Follow the Clue ➝</button>
+</div>
+
+<!-- Slide 2 – Café -->
+<div class="slide" id="slideCafe" style="background-image: url('https://cdn.pixabay.com/photo/2017/01/20/00/30/cafe-1995442_1280.jpg');">
+  <h1>Location📍: Café de Flore</h1>
+  <p>The final clue from the Louvre points to a single word… “Flore.” 🖼️
+
+Houdin smirks 🎩✨ — “Not a flower… a place.”
+
+Conversations flow and secrets hide in plain sight.
+
+Everything seems normal — people sip coffee, read quietly, and mind their own business.
+
+But something feels… off.
+
+“Whoever took the recipe knew we would follow,” Houdin whispers.
+
+One person here isn’t just passing time.
+
+They’re waiting.
+
+Observe carefully — who doesn’t quite belong? 🕵️‍♂️
+</p>
+  <div id="cafeHotspots">
+  <button onclick="chooseCafePerson('wrong')">Man sipping espresso ☕</button>
+  <button onclick="chooseCafePerson('wrong')">Woman reading newspaper 📰</button>
+  <button onclick="chooseCafePerson('wrong')">Waiter serving croissants 🥐</button>
+  <button onclick="chooseCafePerson('correct')">Well-dressed man reading a book 📖</button>
+</div>
+  <div class="clues" id="cluesCafe">Clues collected: 0/5</div>
+</div>
+
+<!-- NEW Slide – Boutique -->
+<div class="slide" id="slideBoutique" style="background-image: url('https://cdn.pixabay.com/photo/2016/11/29/09/32/fashion-1867375_1280.jpg');">
+  <h1>Location📍: Chanel Boutique 👗</h1>
+  <p>Among luxurious scarves, one seems out of place… find the odd one and uncover its secret.</p>
+
+  <div id="boutiqueOptions">
+    <button onclick="chooseScarf('wrong')">Silk embroidered scarf ✨</button>
+    <button onclick="chooseScarf('wrong')">Designer patterned scarf 🎨</button>
+    <button onclick="chooseScarf('wrong')">Velvet luxury scarf 🧵</button>
+    <button onclick="chooseScarf('correct')">Plain worn scarf 🧣</button>
+  </div>
+
+  <div id="boutiqueTask"></div>
+
+  <div class="clues" id="cluesBoutique">Clues collected: 0/5</div>
+</div>
+
+<div class="slide" id="slideTransitionBoutique" style="background-image: url('https://cdn.pixabay.com/photo/2017/08/06/22/01/paris-2597454_1280.jpg');">
+  <h1>A Subtle Clue… 👗</h1>
+  
+  <p>
+    As the man leaves, Houdin’s eyes narrow 🎩✨.  
+    Something about the scarf… wasn’t right.
+  </p>
+
+  <p>
+    He picks it up — fine silk, but poorly stitched on the inside.  
+    Hidden beneath the fold… a tag.
+  </p>
+
+  <p>
+    A name glimmers in gold: <b>CHANEL</b>.
+  </p>
+
+  <p>
+    “Of course…” Houdin murmurs.  
+    “If this is where the trail leads… then we follow fashion.”
+  </p>
+
+  <button onclick="goToSlide('slideBoutique')">Follow the Trail →</button>
+</div>
+
+<div class="slide" id="slideTransitionBookstore" style="background-image: url('https://cdn.pixabay.com/photo/2016/11/29/09/08/book-1868068_1280.jpg');">
+  <h1>The Next Lead 📚</h1>
+
+  <p>
+    The note trembles in Houdin’s hand…  
+    *“Cookery Section…”*
+  </p>
+
+  <p>
+    “Not just any place…” he mutters.  
+    “A bookstore.”
+  </p>
+
+  <p>
+    The thief is leaving a trail — and we’re close.
+  </p>
+
+  <button onclick="goToSlide('slideBookstore')">Follow the Lead →</button>
+</div>
+
+<!-- Slide 3 – Bookstore -->
+<div class="slide" id="slideBookstore" style="background-image: url('https://cdn.pixabay.com/photo/2017/01/31/14/22/bookstore-2025292_1280.jpg');">
+  <h1>Famous French Bookstore</h1>
+  <p>Travel to the Food & Cookery section and find the Secret Macaron Guide by a famous French baker.</p>
+  <div id="libraryTask"></div>
+  <p>Choose the correct section first, then find the Secret Macaron Guide!</p>
+  <div class="clues" id="cluesBookstore">Clues collected: 0/5</div>
+</div>
+
+<!-- NEW TRANSITION SLIDE -->
+<div class="slide" id="slideTransitionBakery" style="background-image: url('https://cdn.pixabay.com/photo/2016/11/29/09/08/book-1868068_1280.jpg');">
+  <h1>The Final Trail 🥐</h1>
+
+  <p>Hidden within the book… a final clue reveals itself.</p>
+
+  <p>“Rue des Délices…” Houdin whispers.</p>
+
+  <p>“The recipe must be hidden in a bakery.”</p>
+
+  <button onclick="goToSlide('slideBakery')">Follow the Scent →</button>
+</div>
+
+<!-- Slide 4 – Bakery -->
+<div class="slide" id="slideBakery" style="background-image: url('https://cdn.pixabay.com/photo/2017/01/22/19/17/bakery-2007743_1280.jpg');">
+  <h1>La Maison Stohrer – Famous Bakery</h1>
+  <p>🥐 The baker will only reveal the secret ingredient if you prove your knowledge!</p>
+  <p><strong>Order the steps to prepare a perfect macaron:</strong></p>
+  
+  <div id="macaronOrdering">
+    <div class="ordering-instructions">
+      Click the steps in the correct order (1 → 6):
+    </div>
+    
+    <div id="selectedSteps" class="selected-steps-area">
+      <div class="selected-steps-label">Your Order:</div>
+      <div id="selectedStepsList"></div>
+    </div>
+    
+    <div id="availableSteps" class="available-steps">
+      <!-- Steps will be dynamically populated by JavaScript -->
+    </div>
+    
+    <div class="ordering-buttons">
+      <button onclick="resetMacaronOrder()" class="reset-btn">Reset Order</button>
+      <button onclick="checkMacaronOrder()" class="check-btn">Check Order</button>
+    </div>
+  </div>
+  
+  <div class="clues" id="cluesBakery">Clues collected: 0/5</div>
+</div>
+
+<!-- NEW TRANSITION SLIDE - Bakery Secret -->
+<div class="slide" id="slideTransitionBakerySecret" style="background-image: url('https://cdn.pixabay.com/photo/2017/01/22/19/17/bakery-2007743_1280.jpg');">
+  <h1>The Secret Revealed... 🥐✨</h1>
+  
+  <p id="transitionText">
+    The baker's eyes light up with approval 👨‍🍳
+    
+    <br><br>
+    
+    "You truly know the art of macarons!" he exclaims.
+    
+    <br><br>
+    
+    He reaches beneath the counter and pulls out an ancient recipe card...
+    
+    <br><br>
+    
+    <strong>Wait for the secret...</strong> 🔮
+  </p>
+  
+  <button onclick="addClue(5)">Continue →</button>
+</div>
+
+<!-- Slide 5 – Combine Clues -->
+<div class="slide" id="slideFinal" style="background-image: url('https://cdn.pixabay.com/photo/2015/06/19/21/24/paris-815487_1280.jpg');">
+  <h1>Combine All Clues</h1>
+  <p>Use the four clues you collected to unlock the final location of the lost macaron recipe!</p>
+  <div class="clues" id="finalClues"></div>
+  <input type="text" id="finalInput" placeholder="Enter code from clues e.g. A-B-C-D-E">
+  <button onclick="checkFinal()">Decipher Recipe</button>
+  <p id="finalMessage"></p>
+</div>
+
+<!-- Slide 6 – Eiffel Tower -->
+<div class="slide" id="slideEiffel" style="background-image: url('https://cdn.pixabay.com/photo/2016/03/27/19/35/eiffel-tower-1284432_1280.jpg');">
+  <h1>🎉 At the Top of the Eiffel Tower!</h1>
+  <p>Houdin climbs the winding stairs 🪜, heart racing 💓. At last, the secret macaron recipe glimmers in his hands ✨🍬. With a wave of his magic wand 🪄, he disappears back to his basement as if nothing happened 😎🏠.</p>
+  <button onclick="goToSlide('slide0')">Return to Basement</button>
+</div>
+
+<script src="script.js"></script>
+<div id="customPopup" class="popup">
+  <div class="popup-content">
+    <p id="popupText"></p>
+    <button onclick="closePopup()">Continue</button>
+  </div>
+</div>
+</body>
+</html>
+
+
