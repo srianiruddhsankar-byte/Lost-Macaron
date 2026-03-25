@@ -175,7 +175,7 @@ const librarySections = ["Science & Arts","Food & Cookery","Magic & Spells"];
 const correctSection = "Food & Cookery"; // Section with macaron book
 
 // Step 2 – Books in Food & Cookery
-const booksInFood = ["Baking Basics","Secret Macaron Guide","French Desserts","Cooking with Stars","Mastering Croissants","Parisian Pastries","Simple Guide To Cook Frogs","Baguettes for Beginners","Escargot for Dummies","Wine and Whiskers","The Art of Making Nothing Taste Fancy","Le Guide Culinaire"];
+const booksInFood = ["Baking Basics","Wine and Whiskers","French Desserts","Cooking with Stars","Mastering Croissants","Parisian Pastries","Simple Guide To Cook Frogs","Baguettes for Beginners","Escargot for Dummies","Secret Macaron Guide","The Art of Making Nothing Taste Fancy","Le Guide Culinaire"];
 const correctBook = "Secret Macaron Guide";
 
 // Step 1 – Choose a section
@@ -396,7 +396,7 @@ function closePopup(){
   if(currentFlow === "cafe"){
     if(popupStep === "start"){
       popupStep = "step2";
-      showPopup("Houdin notices the elegant scarf beside him… 👗");
+      showPopup("Houdin notices the elegant scarf… 👗");
       return;
     }
     if(popupStep === "step2"){
