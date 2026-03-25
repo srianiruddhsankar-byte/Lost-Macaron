@@ -382,7 +382,7 @@ function chooseCafePerson(choice){
     currentFlow = "cafe";
     popupStep = "start";
     console.log("ifcondition");
-    showPopup("Something feels off… he isn’t reading at all.");
+    showPopup("Something feels off… he isn’t flipping the pages of the book 📖 .");
   } else {
     console.log("elsecondition");
     showPopup("They seem completely normal… look closer.");
@@ -401,7 +401,7 @@ function closePopup(){
     }
     if(popupStep === "step2"){
       popupStep = "step3";
-      showPopup("“Not enough evidence to stop him… but that scarf…” 🎩");
+      showPopup("“Not enough evidence to stop him… but that scarf is expensive…” 🎩");
       return;
     }
     if(popupStep === "step3"){
