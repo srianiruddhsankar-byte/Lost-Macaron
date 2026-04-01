@@ -1,5 +1,293 @@
 let clues = {1:false,2:false,3:false,4:false,5:false};
 
+// ========== GAME TIMER ==========
+let gameStartTime = null;
+let timerInterval = null;
+
+function startGameTimer() {
+  gameStartTime = Date.now();
+  
+  // Update timer every second
+  timerInterval = setInterval(() => {
+    const elapsed = Date.now() - gameStartTime;
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    
+    const timerDisplay = document.getElementById('gameTimer');
+    if (timerDisplay) {
+      timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+  }, 1000);
+}
+
+function stopGameTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function getElapsedTime() {
+  if (!gameStartTime) return '00:00';
+  const elapsed = Date.now() - gameStartTime;
+  const minutes = Math.floor(elapsed / 60000);
+  const seconds = Math.floor((elapsed % 60000) / 1000);
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+// ========== HINT SYSTEM ==========
+const hintMessages = {
+  'slideMuseum': '💡 Think about French words related to art and museums. Try translating "Peinture" or "Musée" to English!',
+  'slideCafe': '🕵️‍♂️ Look carefully at each person. Who seems out of place? Someone here is reading, but not quite like the others...',
+  'slideBoutique': '🧣 Among all these luxury items, one doesn\'t belong. Look for something that seems worn or cheaper than the rest.',
+  'slideBookstore': '📚 You\'re looking for a cookbook section. Think about where you\'d find recipes for French desserts!',
+  'slideBakery': '🥐 Making macarons is all about the process! Start with ingredients, then whisk, fold, pipe, rest, and finally bake.'
+};
+
+function updateHintButton(slideId) {
+  const hintButton = document.getElementById('hintButton');
+  const hintChat = document.getElementById('hintChat');
+  
+  if (!hintButton || !hintChat) {
+    console.log('Hint elements not found');
+    return;
+  }
+  
+  // Show hint button only on specific slides (steps 2-6)
+  const slidesWithHints = ['slideMuseum', 'slideCafe', 'slideBoutique', 'slideBookstore', 'slideBakery'];
+  
+  console.log('Current slide:', slideId, 'Has hints:', slidesWithHints.includes(slideId));
+  
+  if (slidesWithHints.includes(slideId)) {
+    hintButton.classList.add('show');
+    console.log('Hint button should be visible now');
+    // Close chat when changing slides
+    hintChat.classList.remove('show');
+  } else {
+    hintButton.classList.remove('show');
+    hintChat.classList.remove('show');
+  }
+}
+
+function toggleHintChat() {
+  // 🔊 Play glass clink sound
+  playGlassClinkSound();
+  
+  const hintChat = document.getElementById('hintChat');
+  const hintText = document.getElementById('hintText');
+  const activeSlide = document.querySelector('.slide.active');
+  
+  if (activeSlide && hintMessages[activeSlide.id]) {
+    hintText.textContent = hintMessages[activeSlide.id];
+    hintChat.classList.toggle('show');
+  }
+}
+
+function closeHintChat() {
+  const hintChat = document.getElementById('hintChat');
+  hintChat.classList.remove('show');
+}
+
+// ========== NOTES SYSTEM ==========
+function updateNotesButton(slideId) {
+  const notesButton = document.getElementById('notesButton');
+  
+  if (!notesButton) return;
+  
+  // Show notes button on all game slides (not on landing page)
+  const landingPage = document.getElementById('landingPage');
+  if (landingPage && landingPage.classList.contains('active')) {
+    notesButton.classList.remove('show');
+  } else {
+    notesButton.classList.add('show');
+  }
+}
+
+function toggleNotes() {
+  const notesWindow = document.getElementById('notesWindow');
+  notesWindow.classList.toggle('show');
+  
+  // Load saved notes when opening
+  if (notesWindow.classList.contains('show')) {
+    loadNotes();
+  }
+}
+
+function closeNotes() {
+  const notesWindow = document.getElementById('notesWindow');
+  notesWindow.classList.remove('show');
+}
+
+function saveNotes() {
+  const notesText = document.getElementById('notesTextarea').value;
+  sessionStorage.setItem('detectiveNotes', notesText);
+}
+
+function loadNotes() {
+  const savedNotes = sessionStorage.getItem('detectiveNotes') || '';
+  document.getElementById('notesTextarea').value = savedNotes;
+}
+
+function clearNotes() {
+  if (confirm('Are you sure you want to clear all your notes?')) {
+    document.getElementById('notesTextarea').value = '';
+    sessionStorage.removeItem('detectiveNotes');
+  }
+}
+
+// Auto-save notes as user types
+document.addEventListener('DOMContentLoaded', () => {
+  const notesTextarea = document.getElementById('notesTextarea');
+  if (notesTextarea) {
+    notesTextarea.addEventListener('input', saveNotes);
+    // Don't load notes on page load - they're cleared on every refresh
+  }
+});
+
+// ========== TOAST NOTIFICATION SYSTEM ==========
+function showToast(message, type = 'info') {
+  // Remove any existing toasts
+  const existingToast = document.querySelector('.toast');
+  if (existingToast) {
+    existingToast.remove();
+  }
+  
+  // Create new toast
+  const toast = document.createElement('div');
+  toast.className = `toast ${type} show`;
+  
+  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+  
+  toast.innerHTML = `
+    <div class="toast-content">
+      <span class="toast-icon">${icon}</span>
+      <span class="toast-message">${message}</span>
+    </div>
+  `;
+  
+  document.body.appendChild(toast);
+  
+  // Auto-remove after 2 seconds
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 400);
+  }, 2000);
+}
+
+// ========== SOUND EFFECTS SYSTEM ==========
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+// Create a pleasant transition sound
+function playTransitionSound() {
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  // Elegant "whoosh" sound
+  oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+  oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.2);
+  
+  gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+  
+  oscillator.type = 'sine';
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 0.3);
+}
+
+// Create a success/achievement sound
+function playSuccessSound() {
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  // Pleasant "ding" sound
+  oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+  oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+  oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+  
+  gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+  
+  oscillator.type = 'sine';
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 0.4);
+}
+
+// Create a clue collection sound
+function playClueSound() {
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  // Magical "sparkle" sound
+  oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+  oscillator.frequency.exponentialRampToValueAtTime(2400, audioContext.currentTime + 0.15);
+  
+  gainNode.gain.setValueAtTime(0.12, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.25);
+  
+  oscillator.type = 'triangle';
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 0.25);
+}
+
+// Create a smooth notification bell sound for hint button
+function playGlassClinkSound() {
+  const now = audioContext.currentTime;
+  
+  // Create a pleasant bell-like notification sound
+  // Using a major chord (C-E-G) for a pleasant, professional sound
+  
+  // Fundamental note (C - 523.25 Hz)
+  const osc1 = audioContext.createOscillator();
+  const gain1 = audioContext.createGain();
+  osc1.connect(gain1);
+  gain1.connect(audioContext.destination);
+  
+  osc1.frequency.setValueAtTime(523.25, now); // C5
+  gain1.gain.setValueAtTime(0, now);
+  gain1.gain.linearRampToValueAtTime(0.15, now + 0.01); // Smooth attack
+  gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+  osc1.type = 'sine';
+  osc1.start(now);
+  osc1.stop(now + 0.5);
+  
+  // Third (E - 659.25 Hz)
+  const osc2 = audioContext.createOscillator();
+  const gain2 = audioContext.createGain();
+  osc2.connect(gain2);
+  gain2.connect(audioContext.destination);
+  
+  osc2.frequency.setValueAtTime(659.25, now + 0.01); // E5
+  gain2.gain.setValueAtTime(0, now + 0.01);
+  gain2.gain.linearRampToValueAtTime(0.12, now + 0.02);
+  gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+  osc2.type = 'sine';
+  osc2.start(now + 0.01);
+  osc2.stop(now + 0.6);
+  
+  // Fifth (G - 783.99 Hz) - adds brightness
+  const osc3 = audioContext.createOscillator();
+  const gain3 = audioContext.createGain();
+  osc3.connect(gain3);
+  gain3.connect(audioContext.destination);
+  
+  osc3.frequency.setValueAtTime(783.99, now + 0.02); // G5
+  gain3.gain.setValueAtTime(0, now + 0.02);
+  gain3.gain.linearRampToValueAtTime(0.1, now + 0.03);
+  gain3.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
+  osc3.type = 'sine';
+  osc3.start(now + 0.02);
+  osc3.stop(now + 0.7);
+}
+
 // ========== WIZARD PROGRESS TRACKING ==========
 const wizardSteps = {
   'slide0': { step: 1, title: 'Begin Your Adventure', name: 'Intro' },
@@ -50,14 +338,31 @@ function updateWizardProgress(slideId) {
 }
 
 function goToSlide(id){
-  // 1️⃣ Hide all slides
-  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  // 🔊 Play transition sound
+  playTransitionSound();
+  
+  // 1️⃣ Get current active slide and add slide-out animation
+  const currentSlide = document.querySelector('.slide.active');
+  if (currentSlide) {
+    currentSlide.classList.add('slide-out');
+    currentSlide.classList.remove('active');
+  }
 
-  // 2️⃣ Small delay before showing new slide for smoother fade-in
+  // 2️⃣ Wait for slide-out animation, then show new slide
   setTimeout(() => {
+    // Remove slide-out class from all slides
+    document.querySelectorAll('.slide').forEach(s => {
+      s.classList.remove('slide-out');
+    });
+    
+    // Show new slide
     document.getElementById(id).classList.add('active');
 
     // ✅ Initialize slide-specific things
+    if(id === 'slideMuseum'){
+      initializeMuseumQuiz(); // initialize the museum quiz
+    }
+    
     if(id === 'slideBookstore'){
       enterLibrary(); // automatically show the library sections
     }
@@ -65,18 +370,188 @@ function goToSlide(id){
     if(id === 'slideBakery'){
       initializeMacaronGame(); // initialize the macaron ordering game
     }
+    
+    // ⏱️ Check if victory slide - stop timer and show final time
+    if(id === 'slideEiffel'){
+      stopGameTimer();
+      const finalTimeDisplay = document.getElementById('finalTime');
+      if (finalTimeDisplay) {
+        finalTimeDisplay.textContent = getElapsedTime();
+      }
+    }
 
     // ✅ Update wizard progress
     updateWizardProgress(id);
-  }, 50); // 50ms delay
+    
+    // ✅ Update hint button visibility
+    updateHintButton(id);
+    
+    // ✅ Update notes button visibility
+    updateNotesButton(id);
+  }, 500); // Smooth transition timing
+}
+
+// Launch game from landing page
+function launchGame() {
+  // 🔊 Play success sound for starting the game
+  playSuccessSound();
+  
+  const landingPage = document.getElementById('landingPage');
+  const wizardProgress = document.getElementById('wizardProgress');
+  
+  // Add fade-out animation to landing page
+  landingPage.classList.add('fade-out');
+  
+  // Wait for animation, then hide landing page and show game
+  setTimeout(() => {
+    landingPage.classList.remove('active', 'fade-out');
+    wizardProgress.style.display = 'block';
+    
+    // ⏱️ Start the game timer
+    startGameTimer();
+    
+    goToSlide('slide0');
+  }, 800);
 }
 
 // Initialize wizard on page load
 window.addEventListener('DOMContentLoaded', () => {
-  updateWizardProgress('slide0');
+  // Clear notes on page load/hard refresh
+  sessionStorage.removeItem('detectiveNotes');
+  const notesTextarea = document.getElementById('notesTextarea');
+  if (notesTextarea) {
+    notesTextarea.value = '';
+  }
+  
+  // Check if landing page exists and is active
+  const landingPage = document.getElementById('landingPage');
+  const wizardProgress = document.getElementById('wizardProgress');
+  
+  if (landingPage && landingPage.classList.contains('active')) {
+    // Hide wizard if landing page is active
+    wizardProgress.style.display = 'none';
+    // Hide hint button on landing page
+    const hintButton = document.getElementById('hintButton');
+    if (hintButton) {
+      hintButton.classList.remove('show');
+    }
+    // Hide notes button on landing page
+    const notesButton = document.getElementById('notesButton');
+    if (notesButton) {
+      notesButton.classList.remove('show');
+    }
+  } else {
+    // Show wizard and initialize for first game slide
+    wizardProgress.style.display = 'block';
+    updateWizardProgress('slide0');
+    // Check which slide is active and update hint button
+    const activeSlide = document.querySelector('.slide.active');
+    if (activeSlide) {
+      updateHintButton(activeSlide.id);
+      updateNotesButton(activeSlide.id);
+    }
+  }
 });
+
+// Reset game to initial state
+function resetGame() {
+  // Reset clues
+  clues = {1:false,2:false,3:false,4:false,5:false};
+  
+  // Reset museum quiz
+  quizAnswers = {
+    q1: false,
+    q2: false,
+    q3: false
+  };
+  
+  // Reset macaron game
+  selectedSteps = [];
+  shuffledSteps = [];
+  
+  // Reset popup flow
+  popupStep = "";
+  currentFlow = "";
+  
+  // Stop and reset timer
+  stopGameTimer();
+  gameStartTime = null;
+  
+  // Update clue displays
+  updateClues();
+  
+  // Clear final clues
+  const clueBox = document.getElementById('finalClues');
+  if (clueBox) {
+    clueBox.style.display = 'none';
+    clueBox.innerHTML = '';
+  }
+  
+  // Clear final message
+  const finalMessage = document.getElementById('finalMessage');
+  if (finalMessage) {
+    finalMessage.innerText = '';
+  }
+  
+  // Clear final input
+  const finalInput = document.getElementById('finalInput');
+  if (finalInput) {
+    finalInput.value = '';
+  }
+  
+  // Hide wizard and show landing page
+  const landingPage = document.getElementById('landingPage');
+  const wizardProgress = document.getElementById('wizardProgress');
+  
+  // Hide all game slides
+  document.querySelectorAll('.slide').forEach(s => {
+    s.classList.remove('active', 'slide-out');
+  });
+  
+  // Hide hint button
+  const hintButton = document.getElementById('hintButton');
+  if (hintButton) {
+    hintButton.classList.remove('show');
+  }
+  
+  // Hide hint chat
+  const hintChat = document.getElementById('hintChat');
+  if (hintChat) {
+    hintChat.classList.remove('show');
+  }
+  
+  // Hide notes button
+  const notesButton = document.getElementById('notesButton');
+  if (notesButton) {
+    notesButton.classList.remove('show');
+  }
+  
+  // Hide notes window
+  const notesWindow = document.getElementById('notesWindow');
+  if (notesWindow) {
+    notesWindow.classList.remove('show');
+  }
+  
+  // Clear notes
+  document.getElementById('notesTextarea').value = '';
+  sessionStorage.removeItem('detectiveNotes');
+  
+  // Show landing page
+  wizardProgress.style.display = 'none';
+  landingPage.classList.add('active');
+  
+  // Reset timer display
+  const timerDisplay = document.getElementById('gameTimer');
+  if (timerDisplay) {
+    timerDisplay.textContent = '00:00';
+  }
+}
+
 // Update clues and toggle animation
 function addClue(num, text){
+  // 🔊 Play clue collection sound
+  playClueSound();
+  
   // mark clue as collected
   clues[num] = true;
 
@@ -116,56 +591,107 @@ function countClues(){
   return Object.values(clues).filter(Boolean).length;
 }
 
-//////////////// Louvre Mini-Game (3/5 correct) //////////////////
+//////////////// Louvre Mini-Game (All Questions at Once) //////////////////
 
 const museumQuestions = [
-  {q:'Translate "Peinture" → ?', a:'Painting'},
-  {q:'Translate "Musée" → ?', a:'Museum'},
-  {q:'Year Mona Lisa painted?', a:'1503'},
-  {q:'Translate "Artiste" → ?', a:'Artist'},
-  {q:'Where is the Louvre Museum Located', a:'Paris'}
+  {id: 'q1', q:'Translate "Peinture" → ?', a:'Painting'},
+  {id: 'q2', q:'Translate "Musée" → ?', a:'Museum'},
+  {id: 'q3', q:'Year Mona Lisa painted?', a:'1503'}
 ];
 
-let museumCorrect = 0;
+let quizAnswers = {
+  q1: false,
+  q2: false,
+  q3: false
+};
 
-// Track remaining questions so they don't repeat
-let remainingMuseumQuestions = [...museumQuestions];
-
-function nextMuseumTask() {
-  if (museumCorrect >= 3) { 
-    addClue(1); // unlock Clue #1
-    return; 
-  }
-
-  // Reset if all questions have been asked
-  if (remainingMuseumQuestions.length === 0) {
-    remainingMuseumQuestions = [...museumQuestions];
-  }
-
-  // Pick a random question from remaining
-  const index = Math.floor(Math.random() * remainingMuseumQuestions.length);
-  const task = remainingMuseumQuestions[index];
-
-  // Remove it so it doesn't repeat immediately
-  remainingMuseumQuestions.splice(index, 1);
-
-  // Display question and bigger input box
-  document.getElementById('museumTask').innerHTML = `
-   <div class="museum-question">${task.q}</div><br>
-    <input type="text" id="museumAnswer" placeholder="Type your answer here" style="width:300px; font-size:16px; padding:5px;">
-    <button onclick="checkMuseum('${task.a}')">Submit</button>
-  `;
+function initializeMuseumQuiz() {
+  // Reset quiz state
+  quizAnswers = {
+    q1: false,
+    q2: false,
+    q3: false
+  };
+  
+  const container = document.getElementById('quizQuestions');
+  container.innerHTML = '';
+  
+  // Create all questions at once
+  museumQuestions.forEach((question, index) => {
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'quiz-question';
+    questionDiv.id = `question-${question.id}`;
+    
+    questionDiv.innerHTML = `
+      <div class="question-text">${index + 1}. ${question.q}</div>
+      <div class="question-input-group">
+        <input type="text"
+               id="answer-${question.id}"
+               placeholder="Type your answer here"
+               onkeypress="handleQuizEnter(event, '${question.id}', '${question.a}')">
+        <button onclick="checkQuizAnswer('${question.id}', '${question.a}')">Submit</button>
+      </div>
+    `;
+    
+    container.appendChild(questionDiv);
+  });
+  
+  updateQuizProgress();
 }
 
-function checkMuseum(ans) {
-  const val = document.getElementById('museumAnswer').value.trim();
-  if (val.toLowerCase() === ans.toLowerCase()) {
-    showPopup('✅ Correct!');
-    museumCorrect++;
-    nextMuseumTask(); // automatically show next question
-  } else {
-    showPopup('❌ Try again!');
+function handleQuizEnter(event, questionId, correctAnswer) {
+  if (event.key === 'Enter') {
+    checkQuizAnswer(questionId, correctAnswer);
   }
+}
+
+function checkQuizAnswer(questionId, correctAnswer) {
+  const input = document.getElementById(`answer-${questionId}`);
+  const questionDiv = document.getElementById(`question-${questionId}`);
+  const userAnswer = input.value.trim();
+  
+  // Don't check if already answered correctly
+  if (quizAnswers[questionId]) {
+    showToast('You already answered this correctly!', 'info');
+    return;
+  }
+  
+  if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+    // Correct answer
+    playSuccessSound();
+    showToast('Correct! Well done! 🎉', 'success');
+    quizAnswers[questionId] = true;
+    
+    // Mark question as correct
+    questionDiv.classList.add('correct');
+    input.disabled = true;
+    questionDiv.querySelector('button').disabled = true;
+    
+    updateQuizProgress();
+    
+    // Check if all answered correctly
+    const allCorrect = Object.values(quizAnswers).every(v => v === true);
+    if (allCorrect) {
+      setTimeout(() => {
+        showToast('All questions answered correctly! Clue unlocked! ✨', 'success');
+        setTimeout(() => {
+          addClue(1); // unlock Clue #1 and advance
+        }, 1500);
+      }, 500);
+    }
+  } else {
+    // Wrong answer
+    showToast('Incorrect. Try again!', 'error');
+    questionDiv.classList.add('incorrect');
+    setTimeout(() => {
+      questionDiv.classList.remove('incorrect');
+    }, 1000);
+  }
+}
+
+function updateQuizProgress() {
+  const correctCount = Object.values(quizAnswers).filter(v => v === true).length;
+  document.getElementById('correctCount').textContent = correctCount;
 }
 
 // Library 2-Step Search – Section then Book
@@ -308,6 +834,7 @@ function checkMacaronOrder() {
   }
   
   if (isCorrect) {
+    playSuccessSound(); // 🔊 Success sound
     currentFlow = "bakery";
     popupStep = "start";
     showPopup('🎉 Perfect! You know the secret macaron recipe!');
@@ -326,9 +853,10 @@ function checkIngredient(choice){
 function checkFinal(){
   const val=document.getElementById('finalInput').value.toUpperCase();
   if(val==='L-C-F-B-B'){
+    playSuccessSound(); // 🔊 Victory sound
     goToSlide('slideEiffel'); // Move to the new Eiffel Tower slide
-} else { 
-    document.getElementById('finalMessage').innerText='Incorrect. Check your clues and try again.'; 
+} else {
+    document.getElementById('finalMessage').innerText='Incorrect. Check your clues and try again.';
 }
 }
 // Boutique Game
@@ -412,6 +940,8 @@ function closePopup(){
       return;
     }
   }
+  
+  
 
   // 🧥 BOUTIQUE FLOW
   if(currentFlow === "boutique"){
